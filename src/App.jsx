@@ -51,6 +51,7 @@ function App() {
   const [newMoveKind, setNewMoveKind] = useState('normal');
   const [newSpecialName, setNewSpecialName] = useState('');
   const [notation, setNotation] = useState('name');
+  const [activeTab, setActiveTab] = useState('builder');
   const [draft, setDraft] = useState([]);
   const [comboName, setComboName] = useState('');
   const [selectedComboId, setSelectedComboId] = useState('');
@@ -445,6 +446,12 @@ function App() {
     setSelectedCharacterId(defaultData.games[0].characters[0].id);
   };
 
+  const tabOptions = [
+    { key: 'builder', label: 'コンボビルダー' },
+    { key: 'skills', label: '技登録' },
+    { key: 'data', label: 'JSON' },
+  ];
+
   return (
     <div className="app-shell">
       <header className="topbar">
@@ -526,186 +533,220 @@ function App() {
         </aside>
 
         <main className="panel content">
-          {selectedGame && selectedCharacter ? (
+          {selectedGame ? (
             <>
-              <section className="card">
-                <div className="section-head">
-                  <h2>{selectedGame.name} / {selectedCharacter.name}</h2>
-                </div>
-
-                <div className="two-col-grid">
-                  <div>
-                    <h3>通常技</h3>
-                    <div className="inline-form">
-                      <input
-                        value={newMoveName}
-                        onChange={(event) => setNewMoveName(event.target.value)}
-                        placeholder="P, K, S..."
-                      />
-                      <select value={newMoveKind} onChange={(event) => setNewMoveKind(event.target.value)}>
-                        <option value="normal">通常</option>
-                        <option value="jump">ジャンプ</option>
-                        <option value="dash">ダッシュ</option>
-                      </select>
-                      <button type="button" onClick={addMove}>追加</button>
-                    </div>
-                    <div className="chip-list">
-                      {selectedGame.normalMoves.map((move) => (
-                        <span key={move.id} className="chip">
-                          {move.label}
-                          <button
-                            type="button"
-                            className="chip-delete"
-                            onClick={() => removeMove('normal', move.id)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <div className="chip-list">
-                      {selectedGame.jumpMoves.map((move) => (
-                        <span key={move.id} className="chip">
-                          {move.label}
-                          <button
-                            type="button"
-                            className="chip-delete"
-                            onClick={() => removeMove('jump', move.id)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <div className="chip-list">
-                      {selectedGame.dashMoves.map((move) => (
-                        <span key={move.id} className="chip">
-                          {move.label}
-                          <button
-                            type="button"
-                            className="chip-delete"
-                            onClick={() => removeMove('dash', move.id)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3>必殺技</h3>
-                    <div className="inline-form">
-                      <input
-                        value={newSpecialName}
-                        onChange={(event) => setNewSpecialName(event.target.value)}
-                        placeholder="必殺技名"
-                      />
-                      <button type="button" onClick={addSpecialMove}>追加</button>
-                    </div>
-                    <div className="chip-list">
-                      {selectedCharacter.specialMoves.map((move) => (
-                        <span key={move.id} className="chip">
-                          {move.name}
-                          <button
-                            type="button"
-                            className="chip-delete"
-                            onClick={() => removeSpecialMove(move.id)}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
               <section className="card combo-builder">
-                <div className="section-head">
-                  <h2>コンボビルダー</h2>
-                </div>
-
-                <div className="action-palette">
-                  {actionGroups.map((group) => (
-                    <div key={group.key} className="action-group">
-                      <h3>{group.title}</h3>
-                      <div className="action-button-grid">
-                        {group.actions.map((action) => (
-                          <button
-                            key={action.id}
-                            type="button"
-                            className="action-button"
-                            onClick={() => addActionToDraft(action)}
-                          >
-                            {getActionLabel(action, notation)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="recipe-draft preview-only">
-                  <div className="combo-preview">
-                    <label>プレビュー</label>
-                    <div className="combo-output">
-                      {draft.length
-                        ? buildComboString(draft.map((step) => ({ ...step, label: step.label || getActionLabel(step, 'name') })))
-                        : 'ボタンを押してコンボを組み立ててください'}
-                    </div>
-                    <div className="builder-footer">
-                      <button type="button" className="secondary" onClick={undoLastStep}>1つ戻す</button>
-                      <button type="button" className="secondary" onClick={() => setDraft([])}>クリア</button>
-                    </div>
+                <div className="section-head with-tabs">
+                  <h2>{selectedCharacter ? `${selectedGame.name} / ${selectedCharacter.name}` : selectedGame.name}</h2>
+                  <div className="tab-strip" role="tablist" aria-label="機能切り替え">
+                    {tabOptions.map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        className={activeTab === tab.key ? 'tab-button active' : 'tab-button'}
+                        onClick={() => setActiveTab(tab.key)}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                <div className="save-combo-row">
-                  <input
-                    value={comboName}
-                    onChange={(event) => setComboName(event.target.value)}
-                    placeholder="コンボ名"
-                  />
-                  <button type="button" onClick={saveCombo}>保存</button>
-                </div>
-              </section>
+                {activeTab === 'builder' && (
+                  <>
+                    <div className="action-palette">
+                      {actionGroups.map((group) => (
+                        <div key={group.key} className="action-group">
+                          <h3>{group.title}</h3>
+                          <div className="action-button-grid">
+                            {group.actions.map((action) => (
+                              <button
+                                key={action.id}
+                                type="button"
+                                className="action-button"
+                                onClick={() => addActionToDraft(action)}
+                              >
+                                {getActionLabel(action, notation)}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-              <section className="card">
-                <div className="section-head">
-                  <h2>保存済みコンボ</h2>
-                </div>
-                <div className="combo-list">
-                  {selectedCharacter.combos.map((combo) => (
-                    <div key={combo.id} className="combo-item">
-                      <div>
-                        <strong>{combo.name}</strong>
-                        <p>{buildComboString(combo.steps.map((step) => ({ ...step, label: getActionLabel(step, notation) })))} </p>
-                      </div>
-                      <div className="combo-actions">
-                        <button type="button" onClick={() => selectCombo(combo)}>編集</button>
-                        <button type="button" className="danger" onClick={() => deleteCombo(combo.id)}>削除</button>
+                    <div className="recipe-draft preview-only">
+                      <div className="combo-preview">
+                        <label>プレビュー</label>
+                        <div className="combo-output">
+                          {draft.length
+                            ? buildComboString(draft.map((step) => ({ ...step, label: step.label || getActionLabel(step, 'name') })))
+                            : 'ボタンを押してコンボを組み立ててください'}
+                        </div>
+                        <div className="builder-footer">
+                          <button type="button" className="secondary" onClick={undoLastStep}>1つ戻す</button>
+                          <button type="button" className="secondary" onClick={() => setDraft([])}>クリア</button>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    <div className="save-combo-row">
+                      <input
+                        value={comboName}
+                        onChange={(event) => setComboName(event.target.value)}
+                        placeholder={selectedCharacter ? 'コンボ名' : 'キャラクターを選択して保存'}
+                        disabled={!selectedCharacter}
+                      />
+                      <button type="button" onClick={saveCombo} disabled={!selectedCharacter}>
+                        保存
+                      </button>
+                    </div>
+                    {!selectedCharacter && (
+                      <div className="empty-muted">
+                        キャラクターを追加してから、コンボを保存できます。
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {activeTab === 'skills' && (
+                  <div className="skills-panel">
+                    <div className="two-col-grid">
+                      <div>
+                        <h3>通常技</h3>
+                        <div className="inline-form">
+                          <input
+                            value={newMoveName}
+                            onChange={(event) => setNewMoveName(event.target.value)}
+                            placeholder="P, K, S..."
+                          />
+                          <select value={newMoveKind} onChange={(event) => setNewMoveKind(event.target.value)}>
+                            <option value="normal">通常</option>
+                            <option value="jump">ジャンプ</option>
+                            <option value="dash">ダッシュ</option>
+                          </select>
+                          <button type="button" onClick={addMove}>追加</button>
+                        </div>
+                        <div className="chip-list">
+                          {selectedGame.normalMoves.map((move) => (
+                            <span key={move.id} className="chip">
+                              {move.label}
+                              <button
+                                type="button"
+                                className="chip-delete"
+                                onClick={() => removeMove('normal', move.id)}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="chip-list">
+                          {selectedGame.jumpMoves.map((move) => (
+                            <span key={move.id} className="chip">
+                              {move.label}
+                              <button
+                                type="button"
+                                className="chip-delete"
+                                onClick={() => removeMove('jump', move.id)}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                        <div className="chip-list">
+                          {selectedGame.dashMoves.map((move) => (
+                            <span key={move.id} className="chip">
+                              {move.label}
+                              <button
+                                type="button"
+                                className="chip-delete"
+                                onClick={() => removeMove('dash', move.id)}
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <h3>必殺技</h3>
+                        {!selectedCharacter ? (
+                          <div className="empty-muted">
+                            必殺技を登録するにはキャラクターを追加してください。
+                          </div>
+                        ) : (
+                          <>
+                            <div className="inline-form">
+                              <input
+                                value={newSpecialName}
+                                onChange={(event) => setNewSpecialName(event.target.value)}
+                                placeholder="必殺技名"
+                              />
+                              <button type="button" onClick={addSpecialMove}>追加</button>
+                            </div>
+                            <div className="chip-list">
+                              {selectedCharacter.specialMoves.map((move) => (
+                                <span key={move.id} className="chip">
+                                  {move.name}
+                                  <button
+                                    type="button"
+                                    className="chip-delete"
+                                    onClick={() => removeSpecialMove(move.id)}
+                                  >
+                                    ×
+                                  </button>
+                                </span>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'data' && (
+                  <section className="card import-export">
+                    <div className="section-head">
+                      <h2>インポート / エクスポート</h2>
+                    </div>
+                    <textarea
+                      value={jsonText}
+                      onChange={(event) => setJsonText(event.target.value)}
+                      placeholder="JSONを入力または出力できます"
+                      rows={10}
+                    />
+                    <div className="button-row">
+                      <button type="button" onClick={exportJson}>JSON出力</button>
+                      <button type="button" className="secondary" onClick={importJson}>JSON読込</button>
+                    </div>
+                  </section>
+                )}
               </section>
 
-              <section className="card import-export">
-                <div className="section-head">
-                  <h2>インポート / エクスポート</h2>
-                </div>
-                <textarea
-                  value={jsonText}
-                  onChange={(event) => setJsonText(event.target.value)}
-                  placeholder="JSONを入力または出力できます"
-                  rows={10}
-                />
-                <div className="button-row">
-                  <button type="button" onClick={exportJson}>JSON出力</button>
-                  <button type="button" className="secondary" onClick={importJson}>JSON読込</button>
-                </div>
-              </section>
+              {selectedCharacter && activeTab === 'builder' && (
+                <section className="card">
+                  <div className="section-head">
+                    <h2>保存済みコンボ</h2>
+                  </div>
+                  <div className="combo-list">
+                    {(selectedCharacter.combos || []).map((combo) => (
+                      <div key={combo.id} className="combo-item">
+                        <div>
+                          <strong>{combo.name}</strong>
+                          <p>{buildComboString(combo.steps.map((step) => ({ ...step, label: getActionLabel(step, notation) })))} </p>
+                        </div>
+                        <div className="combo-actions">
+                          <button type="button" onClick={() => selectCombo(combo)}>編集</button>
+                          <button type="button" className="danger" onClick={() => deleteCombo(combo.id)}>削除</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </>
           ) : (
             <div className="empty-state">

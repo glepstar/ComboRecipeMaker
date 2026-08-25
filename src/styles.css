@@ -145,6 +145,29 @@ h1 {
   margin-bottom: 0.9rem;
 }
 
+.section-head.with-tabs {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.tab-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.tab-button {
+  background: rgba(22, 49, 77, 0.9);
+  color: #dfeaff;
+  border: 1px solid rgba(129, 165, 220, 0.35);
+  padding: 0.5rem 0.8rem;
+}
+
+.tab-button.active {
+  background: #2e7dff;
+  border-color: #5a9dff;
+}
+
 .inline-form {
   display: flex;
   gap: 0.6rem;
@@ -388,6 +411,12 @@ h1 {
 .button-row {
   display: flex;
   gap: 0.75rem;
+}
+
+.skills-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .empty-state,
