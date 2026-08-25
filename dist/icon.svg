@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Combo Recipe Maker icon">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#12243d"/>
+      <stop offset="100%" stop-color="#08111d"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <rect x="74" y="74" width="364" height="364" rx="48" fill="#16314d" stroke="#7ea8ff" stroke-width="16"/>
+  <path d="M162 198h188M162 256h188M162 314h120" stroke="#dfeaff" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="352" cy="314" r="40" fill="#2e7dff"/>
+  <path d="M340 314l18 18 28-34" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
