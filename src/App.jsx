@@ -93,25 +93,10 @@ function App() {
   }, [selectedGame, selectedCharacterId]);
 
   useEffect(() => {
-    if (!selectedCharacter) {
-      setComboName('');
-      setDraft([]);
-      setSelectedComboId('');
-      return;
-    }
-
-    if (!selectedCharacter.combos?.length) {
-      setComboName('');
-      setDraft([]);
-      setSelectedComboId('');
-      return;
-    }
-
-    const firstCombo = selectedCharacter.combos[0];
-    setComboName(firstCombo.name);
-    setDraft(firstCombo.steps || []);
-    setSelectedComboId(firstCombo.id);
-  }, [selectedCharacter]);
+    setComboName('');
+    setDraft([]);
+    setSelectedComboId('');
+  }, [selectedGameId, selectedCharacterId]);
 
   const actionGroups = useMemo(() => {
     if (!selectedGame) {
@@ -312,7 +297,7 @@ function App() {
       }),
     }));
 
-    setSelectedComboId(combo.id);
+    setSelectedComboId('');
     setComboName(combo.name);
   };
 
