@@ -398,6 +398,57 @@ function App() {
     }));
   };
 
+  const reorderMove = (type, fromIndex, toIndex) => {
+    if (!selectedGame) return;
+
+    setData((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== selectedGame.id) return game;
+
+        const reorder = (list) => {
+          const next = [...list];
+          const [item] = next.splice(fromIndex, 1);
+          next.splice(toIndex, 0, item);
+          return next;
+        };
+
+        if (type === 'normal') {
+          return { ...game, normalMoves: reorder(game.normalMoves) };
+        }
+
+        if (type === 'jump') {
+          return { ...game, jumpMoves: reorder(game.jumpMoves) };
+        }
+
+        return { ...game, dashMoves: reorder(game.dashMoves) };
+      }),
+    }));
+  };
+
+  const reorderSpecialMove = (fromIndex, toIndex) => {
+    if (!selectedCharacter) return;
+
+    setData((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== selectedGame.id) return game;
+
+        return {
+          ...game,
+          characters: game.characters.map((character) => {
+            if (character.id !== selectedCharacter.id) return character;
+
+            const next = [...character.specialMoves];
+            const [item] = next.splice(fromIndex, 1);
+            next.splice(toIndex, 0, item);
+            return { ...character, specialMoves: next };
+          }),
+        };
+      }),
+    }));
+  };
+
   const removeSpecialMove = (moveId) => {
     if (!selectedCharacter) return;
 
@@ -626,48 +677,49 @@ function App() {
                           </select>
                           <button type="button" onClick={addMove}>追加</button>
                         </div>
-                        <div className="chip-list">
-                          {selectedGame.normalMoves.map((move) => (
-                            <span key={move.id} className="chip">
-                              {move.label}
-                              <button
-                                type="button"
-                                className="chip-delete"
-                                onClick={() => removeMove('normal', move.id)}
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="chip-list">
-                          {selectedGame.jumpMoves.map((move) => (
-                            <span key={move.id} className="chip">
-                              {move.label}
-                              <button
-                                type="button"
-                                className="chip-delete"
-                                onClick={() => removeMove('jump', move.id)}
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
-                        <div className="chip-list">
-                          {selectedGame.dashMoves.map((move) => (
-                            <span key={move.id} className="chip">
-                              {move.label}
-                              <button
-                                type="button"
-                                className="chip-delete"
-                                onClick={() => removeMove('dash', move.id)}
-                              >
-                                ×
-                              </button>
-                            </span>
-                          ))}
-                        </div>
+                        {[
+                          { label: '通常', type: 'normal', moves: selectedGame.normalMoves },
+                          { label: 'ジャンプ', type: 'jump', moves: selectedGame.jumpMoves },
+                          { label: 'ダッシュ', type: 'dash', moves: selectedGame.dashMoves },
+                        ].map(({ label, type, moves }) => moves.length > 0 && (
+                          <div key={type} className="move-section">
+                            <p className="move-section-label">{label}</p>
+                            <div className="list-box">
+                              {moves.map((move, index) => (
+                                <div key={move.id} className="list-row">
+                                  <span className="move-name">{move.label}</span>
+                                  <div className="reorder-actions">
+                                    <button
+                                      type="button"
+                                      className="mini secondary"
+                                      disabled={index === 0}
+                                      onClick={() => reorderMove(type, index, index - 1)}
+                                      aria-label="上へ"
+                                    >
+                                      ▲
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="mini secondary"
+                                      disabled={index === moves.length - 1}
+                                      onClick={() => reorderMove(type, index, index + 1)}
+                                      aria-label="下へ"
+                                    >
+                                      ▼
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="mini danger"
+                                      onClick={() => removeMove(type, move.id)}
+                                    >
+                                      削除
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
 
                       <div>
@@ -686,18 +738,38 @@ function App() {
                               />
                               <button type="button" onClick={addSpecialMove}>追加</button>
                             </div>
-                            <div className="chip-list">
-                              {selectedCharacter.specialMoves.map((move) => (
-                                <span key={move.id} className="chip">
-                                  {move.name}
-                                  <button
-                                    type="button"
-                                    className="chip-delete"
-                                    onClick={() => removeSpecialMove(move.id)}
-                                  >
-                                    ×
-                                  </button>
-                                </span>
+                            <div className="list-box">
+                              {selectedCharacter.specialMoves.map((move, index) => (
+                                <div key={move.id} className="list-row">
+                                  <span className="move-name">{move.name}</span>
+                                  <div className="reorder-actions">
+                                    <button
+                                      type="button"
+                                      className="mini secondary"
+                                      disabled={index === 0}
+                                      onClick={() => reorderSpecialMove(index, index - 1)}
+                                      aria-label="上へ"
+                                    >
+                                      ▲
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="mini secondary"
+                                      disabled={index === selectedCharacter.specialMoves.length - 1}
+                                      onClick={() => reorderSpecialMove(index, index + 1)}
+                                      aria-label="下へ"
+                                    >
+                                      ▼
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="mini danger"
+                                      onClick={() => removeSpecialMove(move.id)}
+                                    >
+                                      削除
+                                    </button>
+                                  </div>
+                                </div>
                               ))}
                             </div>
                           </>
