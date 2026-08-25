@@ -361,6 +361,38 @@ function App() {
     }));
   };
 
+  const copyCharacter = (characterId) => {
+    if (!selectedGame) return;
+
+    const source = selectedGame.characters.find((c) => c.id === characterId);
+    if (!source) return;
+
+    const newCharacter = {
+      ...JSON.parse(JSON.stringify(source)),
+      id: createId('character'),
+      name: `${source.name} (コピー)`,
+      specialMoves: (source.specialMoves || []).map((move) => ({ ...move, id: createId('special') })),
+      combos: (source.combos || []).map((combo) => ({
+        ...JSON.parse(JSON.stringify(combo)),
+        id: createId('combo'),
+        steps: (combo.steps || []).map((step) => ({ ...step, id: createId('step') })),
+      })),
+    };
+
+    setData((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== selectedGame.id) return game;
+
+        const index = game.characters.findIndex((c) => c.id === characterId);
+        const updated = [...game.characters];
+        updated.splice(index + 1, 0, newCharacter);
+        return { ...game, characters: updated };
+      }),
+    }));
+    setSelectedCharacterId(newCharacter.id);
+  };
+
   const removeCharacter = (characterId) => {
     if (!selectedGame) return;
 
@@ -568,6 +600,13 @@ function App() {
                       onClick={() => setSelectedCharacterId(character.id)}
                     >
                       {character.name}
+                    </button>
+                    <button
+                      type="button"
+                      className="mini"
+                      onClick={() => copyCharacter(character.id)}
+                    >
+                      コピー
                     </button>
                     <button
                       type="button"
