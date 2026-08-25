@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     VitePWA({
@@ -19,7 +20,7 @@ export default defineConfig({
         scope: './',
         icons: [
           {
-            src: '/icon.svg',
+            src: './icon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
