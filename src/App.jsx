@@ -123,7 +123,7 @@ function App() {
         })),
       },
       {
-        title: 'ダッシュ',
+        title: 'その他',
         key: 'dash',
         actions: (selectedGame.dashMoves || []).map((move) => ({
           ...move,
@@ -697,14 +697,14 @@ function App() {
                           <select value={newMoveKind} onChange={(event) => setNewMoveKind(event.target.value)}>
                             <option value="normal">通常</option>
                             <option value="jump">ジャンプ</option>
-                            <option value="dash">ダッシュ</option>
+                            <option value="dash">その他</option>
                           </select>
                           <button type="button" onClick={addMove}>追加</button>
                         </div>
                         {[
                           { label: '通常', type: 'normal', moves: selectedGame.normalMoves },
                           { label: 'ジャンプ', type: 'jump', moves: selectedGame.jumpMoves },
-                          { label: 'ダッシュ', type: 'dash', moves: selectedGame.dashMoves },
+                          { label: 'その他', type: 'dash', moves: selectedGame.dashMoves },
                         ].map(({ label, type, moves }) => moves.length > 0 && (
                           <div key={type} className="move-section">
                             <p className="move-section-label">{label}</p>
