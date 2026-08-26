@@ -30,6 +30,21 @@ export function formatAttackLabel(attack = {}, notation = 'name') {
   }
 }
 
+const MOVE_KIND_GROUPS = [
+  { label: '通常', type: 'normal', key: 'normalMoves' },
+  { label: 'ジャンプ', type: 'jump', key: 'jumpMoves' },
+  { label: 'その他', type: 'dash', key: 'dashMoves' },
+];
+
+export function getMoveGroupByKind(game = {}, kind = 'normal') {
+  const group = MOVE_KIND_GROUPS.find((entry) => entry.type === kind) ?? MOVE_KIND_GROUPS[0];
+
+  return {
+    ...group,
+    moves: game[group.key] || [],
+  };
+}
+
 export const defaultData = {
   games: [
     {
