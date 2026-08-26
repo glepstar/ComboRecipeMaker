@@ -552,12 +552,6 @@ function App() {
     }
   };
 
-  const resetToSample = () => {
-    setData(cloneData(defaultData));
-    setSelectedGameId(defaultData.games[0].id);
-    setSelectedCharacterId(defaultData.games[0].characters[0].id);
-  };
-
   const tabOptions = [
     { key: 'builder', label: 'コンボビルダー' },
     { key: 'skills', label: '技登録' },
@@ -571,9 +565,6 @@ function App() {
           <p className="eyebrow">Combo Recipe Maker</p>
           <h1>コンボレシピ作成支援ツール</h1>
         </div>
-        <button type="button" className="secondary" onClick={resetToSample}>
-          サンプル初期化
-        </button>
       </header>
 
       <div className="workspace-layout">
@@ -747,6 +738,31 @@ function App() {
 
                 {activeTab === 'builder' && (
                   <>
+                    <div className="recipe-draft preview-only">
+                      <div className="combo-preview">
+                        <p>プレビュー</p>
+                        <div className="combo-output">
+                          {draft.length
+                            ? buildComboString(draft.map((step) => ({ ...step, label: step.label || getActionLabel(step, 'name') })))
+                            : 'ボタンを押してコンボを組み立ててください'}
+                        </div>
+                        <div className="builder-footer">
+                          <button type="button" className="secondary" onClick={undoLastStep}>1つ戻す</button>
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => {
+                              if (draft.length === 0 || window.confirm('コンボをクリアしますか？')) {
+                                setDraft([]);
+                              }
+                            }}
+                          >
+                            クリア
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
                     <div className="action-palette">
                       {actionGroups.map((group) => (
                         <div key={group.key} className="action-group">
@@ -765,21 +781,6 @@ function App() {
                           </div>
                         </div>
                       ))}
-                    </div>
-
-                    <div className="recipe-draft preview-only">
-                      <div className="combo-preview">
-                        <label>プレビュー</label>
-                        <div className="combo-output">
-                          {draft.length
-                            ? buildComboString(draft.map((step) => ({ ...step, label: step.label || getActionLabel(step, 'name') })))
-                            : 'ボタンを押してコンボを組み立ててください'}
-                        </div>
-                        <div className="builder-footer">
-                          <button type="button" className="secondary" onClick={undoLastStep}>1つ戻す</button>
-                          <button type="button" className="secondary" onClick={() => setDraft([])}>クリア</button>
-                        </div>
-                      </div>
                     </div>
 
                     <div className="save-combo-row">
