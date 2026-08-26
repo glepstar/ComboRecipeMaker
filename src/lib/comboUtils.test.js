@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildComboString, formatAttackLabel, getMoveGroupByKind } from './comboUtils';
+import { buildComboString, formatAttackLabel, getMoveGroupByKind, getYouTubeVideoId } from './comboUtils';
 
 describe('comboUtils', () => {
   it('builds a combo string from steps', () => {
@@ -36,6 +36,28 @@ describe('comboUtils', () => {
       type: 'normal',
       key: 'normalMoves',
       moves: [{ id: 'n1', label: 'P' }],
+    });
+  });
+
+  describe('getYouTubeVideoId', () => {
+    it('extracts video ID from a standard youtube.com watch URL', () => {
+      expect(getYouTubeVideoId('https://www.youtube.com/watch?v=dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+    });
+
+    it('extracts video ID from a youtu.be short URL', () => {
+      expect(getYouTubeVideoId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
+    });
+
+    it('returns null for a non-YouTube URL', () => {
+      expect(getYouTubeVideoId('https://x.com/user/status/123')).toBeNull();
+    });
+
+    it('returns null for an empty string', () => {
+      expect(getYouTubeVideoId('')).toBeNull();
+    });
+
+    it('returns null for an invalid URL string', () => {
+      expect(getYouTubeVideoId('not-a-url')).toBeNull();
     });
   });
 });
