@@ -443,7 +443,8 @@ h1 {
   text-decoration: none;
 }
 
-.combo-video-link:hover {
+.combo-video-link:hover,
+.combo-video-link:focus-visible {
   text-decoration: underline;
 }
 
