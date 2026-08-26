@@ -590,8 +590,8 @@ function App() {
                   {editingGameId === game.id ? (
                     <input
                       className="inline-edit"
+                      aria-label={`${game.name} の名称を編集`}
                       value={editingGameName}
-                      onChange={(event) => setEditingGameName(event.target.value)}
                       onBlur={() => {
                         if (!editCancelledRef.current && editingGameName.trim()) {
                           renameGame(game.id, editingGameName);
