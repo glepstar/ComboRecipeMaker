@@ -740,7 +740,7 @@ function App() {
                   <>
                     <div className="recipe-draft preview-only">
                       <div className="combo-preview">
-                        <label>プレビュー</label>
+                        <p>プレビュー</p>
                         <div className="combo-output">
                           {draft.length
                             ? buildComboString(draft.map((step) => ({ ...step, label: step.label || getActionLabel(step, 'name') })))
