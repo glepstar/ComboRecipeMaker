@@ -4,6 +4,7 @@ import {
   createId,
   defaultData,
   formatAttackLabel,
+  getMoveGroupByKind,
 } from './lib/comboUtils';
 
 const STORAGE_KEY = 'combo-recipe-maker-data';
@@ -147,6 +148,11 @@ function App() {
       },
     ].filter((group) => group.actions.length > 0);
   }, [selectedCharacter, selectedGame]);
+
+  const selectedMoveGroup = useMemo(
+    () => getMoveGroupByKind(selectedGame, newMoveKind),
+    [newMoveKind, selectedGame],
+  );
 
   const createGame = () => {
     const trimmed = newGameName.trim();
@@ -813,15 +819,11 @@ function App() {
                           </select>
                           <button type="button" onClick={addMove}>追加</button>
                         </div>
-                        {[
-                          { label: '通常', type: 'normal', moves: selectedGame.normalMoves },
-                          { label: 'ジャンプ', type: 'jump', moves: selectedGame.jumpMoves },
-                          { label: 'その他', type: 'dash', moves: selectedGame.dashMoves },
-                        ].map(({ label, type, moves }) => moves.length > 0 && (
-                          <div key={type} className="move-section">
-                            <p className="move-section-label">{label}</p>
+                        {selectedMoveGroup.moves.length > 0 && (
+                          <div key={selectedMoveGroup.type} className="move-section">
+                            <p className="move-section-label">{selectedMoveGroup.label}</p>
                             <div className="list-box">
-                              {moves.map((move, index) => (
+                              {selectedMoveGroup.moves.map((move, index) => (
                                 <div key={move.id} className="list-row">
                                   <span className="move-name">{move.label}</span>
                                   <div className="reorder-actions">
@@ -829,7 +831,7 @@ function App() {
                                       type="button"
                                       className="mini secondary"
                                       disabled={index === 0}
-                                      onClick={() => reorderMove(type, index, index - 1)}
+                                      onClick={() => reorderMove(selectedMoveGroup.type, index, index - 1)}
                                       aria-label="上へ"
                                     >
                                       ▲
@@ -837,8 +839,8 @@ function App() {
                                     <button
                                       type="button"
                                       className="mini secondary"
-                                      disabled={index === moves.length - 1}
-                                      onClick={() => reorderMove(type, index, index + 1)}
+                                      disabled={index === selectedMoveGroup.moves.length - 1}
+                                      onClick={() => reorderMove(selectedMoveGroup.type, index, index + 1)}
                                       aria-label="下へ"
                                     >
                                       ▼
@@ -846,7 +848,7 @@ function App() {
                                     <button
                                       type="button"
                                       className="mini danger"
-                                      onClick={() => removeMove(type, move.id)}
+                                      onClick={() => removeMove(selectedMoveGroup.type, move.id)}
                                     >
                                       削除
                                     </button>
@@ -855,7 +857,7 @@ function App() {
                               ))}
                             </div>
                           </div>
-                        ))}
+                        )}
                       </div>
 
                       <div>
