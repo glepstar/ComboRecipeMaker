@@ -211,6 +211,13 @@ h1 {
   color: inherit;
 }
 
+.inline-edit {
+  flex: 1;
+  font-size: inherit;
+  padding: 0.1rem 0.3rem;
+  border-radius: 6px;
+}
+
 .mini {
   padding: 0.35rem 0.5rem;
   font-size: 0.75rem;
