@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   buildComboString,
   createId,
@@ -51,11 +51,16 @@ function App() {
   const [newMoveKind, setNewMoveKind] = useState('normal');
   const [newSpecialName, setNewSpecialName] = useState('');
   const [notation, setNotation] = useState('name');
+  const [editingGameId, setEditingGameId] = useState('');
+  const [editingGameName, setEditingGameName] = useState('');
+  const [editingCharacterId, setEditingCharacterId] = useState('');
+  const [editingCharacterName, setEditingCharacterName] = useState('');
   const [activeTab, setActiveTab] = useState('builder');
   const [draft, setDraft] = useState([]);
   const [comboName, setComboName] = useState('');
   const [selectedComboId, setSelectedComboId] = useState('');
   const [jsonText, setJsonText] = useState('');
+  const editCancelledRef = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -346,6 +351,39 @@ function App() {
     }));
   };
 
+  const renameGame = (gameId, newName) => {
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    setData((prev) => ({
+      ...prev,
+      games: prev.games.map((game) =>
+        game.id === gameId ? { ...game, name: trimmed } : game,
+      ),
+    }));
+  };
+
+  const renameCharacter = (characterId, newName) => {
+    if (!selectedGame) return;
+
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    setData((prev) => ({
+      ...prev,
+      games: prev.games.map((game) => {
+        if (game.id !== selectedGame.id) return game;
+
+        return {
+          ...game,
+          characters: game.characters.map((character) =>
+            character.id === characterId ? { ...character, name: trimmed } : character,
+          ),
+        };
+      }),
+    }));
+  };
+
   const copyCharacter = (characterId) => {
     if (!selectedGame) return;
 
@@ -549,8 +587,45 @@ function App() {
             <ul className="simple-list">
               {games.map((game) => (
                 <li key={game.id} className={game.id === selectedGame?.id ? 'selected' : ''}>
-                  <button type="button" className="plain-text" onClick={() => setSelectedGameId(game.id)}>
-                    {game.name}
+                  {editingGameId === game.id ? (
+                    <input
+                      className="inline-edit"
+                      aria-label={`${game.name} の名称を編集`}
+                      value={editingGameName}
+                      onBlur={() => {
+                        if (!editCancelledRef.current && editingGameName.trim()) {
+                          renameGame(game.id, editingGameName);
+                        }
+                        editCancelledRef.current = false;
+                        setEditingGameId('');
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          if (editingGameName.trim()) {
+                            renameGame(game.id, editingGameName);
+                          }
+                          setEditingGameId('');
+                        } else if (event.key === 'Escape') {
+                          editCancelledRef.current = true;
+                          setEditingGameId('');
+                        }
+                      }}
+                      autoFocus
+                    />
+                  ) : (
+                    <button type="button" className="plain-text" onClick={() => setSelectedGameId(game.id)}>
+                      {game.name}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="mini secondary"
+                    onClick={() => {
+                      setEditingGameId(game.id);
+                      setEditingGameName(game.name);
+                    }}
+                  >
+                    編集
                   </button>
                   <button type="button" className="mini danger" onClick={() => removeGame(game.id)}>
                     削除
@@ -579,12 +654,49 @@ function App() {
                     key={character.id}
                     className={character.id === selectedCharacter?.id ? 'selected' : ''}
                   >
+                    {editingCharacterId === character.id ? (
+                      <input
+                        className="inline-edit"
+                        value={editingCharacterName}
+                        onChange={(event) => setEditingCharacterName(event.target.value)}
+                        onBlur={() => {
+                          if (!editCancelledRef.current && editingCharacterName.trim()) {
+                            renameCharacter(character.id, editingCharacterName);
+                          }
+                          editCancelledRef.current = false;
+                          setEditingCharacterId('');
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            if (editingCharacterName.trim()) {
+                              renameCharacter(character.id, editingCharacterName);
+                            }
+                            setEditingCharacterId('');
+                          } else if (event.key === 'Escape') {
+                            editCancelledRef.current = true;
+                            setEditingCharacterId('');
+                          }
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        className="plain-text"
+                        onClick={() => setSelectedCharacterId(character.id)}
+                      >
+                        {character.name}
+                      </button>
+                    )}
                     <button
                       type="button"
-                      className="plain-text"
-                      onClick={() => setSelectedCharacterId(character.id)}
+                      className="mini secondary"
+                      onClick={() => {
+                        setEditingCharacterId(character.id);
+                        setEditingCharacterName(character.name);
+                      }}
                     >
-                      {character.name}
+                      編集
                     </button>
                     <button
                       type="button"
