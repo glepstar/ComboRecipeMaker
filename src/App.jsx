@@ -810,6 +810,9 @@ function App() {
                         disabled={!selectedCharacter}
                       />
                       <input
+                        type="url"
+                        inputMode="url"
+                        aria-label="参考動画URL (YouTube / X)"
                         value={comboVideoUrl}
                         onChange={(event) => setComboVideoUrl(event.target.value)}
                         placeholder="参考動画URL (YouTube / X)"
