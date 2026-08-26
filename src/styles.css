@@ -447,6 +447,10 @@ h1 {
   text-decoration: underline;
 }
 
+.combo-video-link:focus-visible {
+  text-decoration: underline;
+}
+
 .combo-video-embed {
   margin-top: 0.6rem;
 }

@@ -54,7 +54,8 @@ export function getYouTubeVideoId(url = '') {
   try {
     const parsed = new URL(url);
     if (parsed.hostname === 'youtu.be') {
-      return parsed.pathname.slice(1) || null;
+      const [videoId] = parsed.pathname.split('/').filter(Boolean);
+      return videoId || null;
     }
     if (parsed.hostname === 'youtube.com' || parsed.hostname === 'www.youtube.com') {
       return parsed.searchParams.get('v') || null;

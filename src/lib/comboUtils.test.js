@@ -48,6 +48,11 @@ describe('comboUtils', () => {
       expect(getYouTubeVideoId('https://youtu.be/dQw4w9WgXcQ')).toBe('dQw4w9WgXcQ');
     });
 
+    it('extracts only the first path segment for youtu.be URLs', () => {
+      expect(getYouTubeVideoId('https://youtu.be/dQw4w9WgXcQ/extra')).toBe('dQw4w9WgXcQ');
+      expect(getYouTubeVideoId('https://youtu.be/dQw4w9WgXcQ/')).toBe('dQw4w9WgXcQ');
+    });
+
     it('returns null for a non-YouTube URL', () => {
       expect(getYouTubeVideoId('https://x.com/user/status/123')).toBeNull();
     });

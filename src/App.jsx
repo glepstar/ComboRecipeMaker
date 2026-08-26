@@ -40,6 +40,19 @@ function getActionLabel(action, notation) {
   return action.label || action.name || action.command || action.keypad || '';
 }
 
+function getValidHttpUrl(url = '') {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+  } catch {
+    // invalid URL
+  }
+  return null;
+}
+
 function App() {
   const [data, setData] = useState(loadInitialData);
   const [selectedGameId, setSelectedGameId] = useState(() => loadInitialData().games[0]?.id ?? '');
@@ -800,6 +813,8 @@ function App() {
                         value={comboVideoUrl}
                         onChange={(event) => setComboVideoUrl(event.target.value)}
                         placeholder="参考動画URL (YouTube / X)"
+                        type="url"
+                        aria-label="参考動画URL"
                         disabled={!selectedCharacter}
                         className="video-url-input"
                       />
@@ -958,23 +973,25 @@ function App() {
                    <div className="combo-list">
                     {(selectedCharacter.combos || []).map((combo) => {
                       const ytId = getYouTubeVideoId(combo.videoUrl);
+                      const validExternalVideoUrl = !ytId ? getValidHttpUrl(combo.videoUrl) : null;
                       return (
                         <div key={combo.id} className="combo-item">
                           <div>
                             <strong>{combo.name}</strong>
                             <p>{buildComboString(combo.steps.map((step) => ({ ...step, label: getActionLabel(step, notation) })))} </p>
-                            {combo.videoUrl && !ytId && (
-                              <a href={combo.videoUrl} target="_blank" rel="noopener noreferrer" className="combo-video-link">
-                                🎬 参考動画
-                              </a>
-                            )}
-                            {ytId && (
-                              <div className="combo-video-embed">
+                           {validExternalVideoUrl && (
+                             <a href={validExternalVideoUrl} target="_blank" rel="noopener noreferrer" className="combo-video-link">
+                               🎬 参考動画
+                             </a>
+                           )}
+                           {ytId && (
+                             <div className="combo-video-embed">
                                 <iframe
                                   src={`https://www.youtube.com/embed/${ytId}`}
                                   title={`${combo.name} 参考動画`}
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
+                                  loading="lazy"
                                 />
                               </div>
                             )}
