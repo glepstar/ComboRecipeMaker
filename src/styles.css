@@ -435,6 +435,35 @@ h1 {
   color: #dfeaff;
 }
 
+.combo-video-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: #7bb3ff;
+  text-decoration: none;
+}
+
+.combo-video-link:hover,
+.combo-video-link:focus-visible {
+  text-decoration: underline;
+}
+
+.combo-video-link:focus-visible {
+  text-decoration: underline;
+}
+
+.combo-video-embed {
+  margin-top: 0.6rem;
+}
+
+.combo-video-embed iframe {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 8px;
+}
+
 .combo-actions {
   display: flex;
   gap: 0.5rem;

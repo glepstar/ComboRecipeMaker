@@ -45,6 +45,27 @@ export function getMoveGroupByKind(game = {}, kind = 'normal') {
   };
 }
 
+/**
+ * Extracts a YouTube video ID from common YouTube URL formats.
+ * Returns null for non-YouTube URLs.
+ */
+export function getYouTubeVideoId(url = '') {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname === 'youtu.be') {
+      const [videoId] = parsed.pathname.split('/').filter(Boolean);
+      return videoId || null;
+    }
+    if (parsed.hostname === 'youtube.com' || parsed.hostname === 'www.youtube.com') {
+      return parsed.searchParams.get('v') || null;
+    }
+  } catch {
+    // invalid URL
+  }
+  return null;
+}
+
 export const defaultData = {
   games: [
     {

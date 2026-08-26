@@ -5,6 +5,7 @@ import {
   defaultData,
   formatAttackLabel,
   getMoveGroupByKind,
+  getYouTubeVideoId,
 } from './lib/comboUtils';
 
 const STORAGE_KEY = 'combo-recipe-maker-data';
@@ -39,6 +40,19 @@ function getActionLabel(action, notation) {
   return action.label || action.name || action.command || action.keypad || '';
 }
 
+function getValidHttpUrl(url = '') {
+  if (!url) return null;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+  } catch {
+    // invalid URL
+  }
+  return null;
+}
+
 function App() {
   const [data, setData] = useState(loadInitialData);
   const [selectedGameId, setSelectedGameId] = useState(() => loadInitialData().games[0]?.id ?? '');
@@ -59,6 +73,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('builder');
   const [draft, setDraft] = useState([]);
   const [comboName, setComboName] = useState('');
+  const [comboVideoUrl, setComboVideoUrl] = useState('');
   const [selectedComboId, setSelectedComboId] = useState('');
   const [jsonText, setJsonText] = useState('');
   const editCancelledRef = useRef(false);
@@ -281,6 +296,7 @@ function App() {
     const combo = {
       id: selectedComboId || createId('combo'),
       name: comboName.trim() || `コンボ ${selectedCharacter.combos.length + 1}`,
+      videoUrl: comboVideoUrl.trim(),
       steps: draft.map((step) => ({
         ...step,
         label: step.label || getActionLabel(step, 'name'),
@@ -310,11 +326,13 @@ function App() {
 
     setSelectedComboId('');
     setComboName(combo.name);
+    setComboVideoUrl(combo.videoUrl || '');
   };
 
   const selectCombo = (combo) => {
     setSelectedComboId(combo.id);
     setComboName(combo.name);
+    setComboVideoUrl(combo.videoUrl || '');
     setDraft((combo.steps || []).map((step) => ({
       ...step,
       label: step.label || step.name || step.command || step.keypad || '必殺技',
@@ -346,6 +364,7 @@ function App() {
     if (selectedComboId === comboId) {
       setSelectedComboId('');
       setComboName('');
+      setComboVideoUrl('');
       setDraft([]);
     }
   };
@@ -790,6 +809,18 @@ function App() {
                         placeholder={selectedCharacter ? 'コンボ名' : 'キャラクターを選択して保存'}
                         disabled={!selectedCharacter}
                       />
+                      <input
+                        type="url"
+                        inputMode="url"
+                        aria-label="参考動画URL (YouTube / X)"
+                        value={comboVideoUrl}
+                        onChange={(event) => setComboVideoUrl(event.target.value)}
+                        placeholder="参考動画URL (YouTube / X)"
+                        type="url"
+                        aria-label="参考動画URL"
+                        disabled={!selectedCharacter}
+                        className="video-url-input"
+                      />
                       <button type="button" onClick={saveCombo} disabled={!selectedCharacter}>
                         保存
                       </button>
@@ -942,19 +973,39 @@ function App() {
                   <div className="section-head">
                     <h2>保存済みコンボ</h2>
                   </div>
-                  <div className="combo-list">
-                    {(selectedCharacter.combos || []).map((combo) => (
-                      <div key={combo.id} className="combo-item">
-                        <div>
-                          <strong>{combo.name}</strong>
-                          <p>{buildComboString(combo.steps.map((step) => ({ ...step, label: getActionLabel(step, notation) })))} </p>
+                   <div className="combo-list">
+                    {(selectedCharacter.combos || []).map((combo) => {
+                      const ytId = getYouTubeVideoId(combo.videoUrl);
+                      const validExternalVideoUrl = !ytId ? getValidHttpUrl(combo.videoUrl) : null;
+                      return (
+                        <div key={combo.id} className="combo-item">
+                          <div>
+                            <strong>{combo.name}</strong>
+                            <p>{buildComboString(combo.steps.map((step) => ({ ...step, label: getActionLabel(step, notation) })))} </p>
+                           {validExternalVideoUrl && (
+                             <a href={validExternalVideoUrl} target="_blank" rel="noopener noreferrer" className="combo-video-link">
+                               🎬 参考動画
+                             </a>
+                           )}
+                           {ytId && (
+                             <div className="combo-video-embed">
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${ytId}`}
+                                  title={`${combo.name} 参考動画`}
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                  loading="lazy"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div className="combo-actions">
+                            <button type="button" onClick={() => selectCombo(combo)}>編集</button>
+                            <button type="button" className="danger" onClick={() => deleteCombo(combo.id)}>削除</button>
+                          </div>
                         </div>
-                        <div className="combo-actions">
-                          <button type="button" onClick={() => selectCombo(combo)}>編集</button>
-                          <button type="button" className="danger" onClick={() => deleteCombo(combo.id)}>削除</button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </section>
               )}
